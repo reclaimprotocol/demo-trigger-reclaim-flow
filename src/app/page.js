@@ -1,12 +1,10 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import { useState, useEffect, useRef } from "react";
 import QRCode from "react-qr-code";
 import Confetti from "react-confetti";
 import useWindowSize from "react-use/lib/useWindowSize";
 import { ReclaimProofRequest } from "@reclaimprotocol/js-sdk";
-import Image from "next/image";
 import JSONPretty from "react-json-pretty";
 import "./globals.css";
 import { userAgentIsIOS, userAgentIsMobile } from "./utils/device";
@@ -41,6 +39,7 @@ https://x.com/madhavanmalolan/status/1792949714813419792
   const [isCopied, setIsCopied] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [error, setError] = useState(null);
 
   const [showButton, setShowButton] = useState(true);
 
@@ -52,7 +51,6 @@ https://x.com/madhavanmalolan/status/1792949714813419792
 
   const { width, height } = useWindowSize();
 
-  const urlRef = useRef(null);
 
   const copyToClipboard = async () => {
     try {
@@ -66,28 +64,21 @@ https://x.com/madhavanmalolan/status/1792949714813419792
   const getVerificationReq = async (providerId) => {
     try {
       setIsLoaded(true);
-      const deviceType = userAgentIsMobile ? (userAgentIsIOS ? 'ios' : 'android') : 'desktop';
+      setError(null);
       const reclaimClient = await ReclaimProofRequest.init(
         APP_ID,
         APP_SECRET,
         providerId,
-        { log: false, acceptAiProviders: true, device: deviceType, useAppClip: deviceType !== 'desktop' }
+        { log: false, acceptAiProviders: true,  }
       );
-      const reclaimClientJson = reclaimClient.toJsonString();
-      const sessionId = JSON.parse(reclaimClientJson).sessionId;
-      reclaimClient.setRedirectUrl(
-        `https://demo.reclaimprotocol.org/session/${sessionId}`
-      );
+      const sessionId = reclaimClient.getSessionId();
+      reclaimClient.setModalOptions({
+        darkTheme: true,
+      })
+      await reclaimClient.triggerReclaimFlow();
+      console.log("sessionId", sessionId);
 
-      const requestUrl = await reclaimClient.getRequestUrl();
-      const statusUrl = await reclaimClient.getStatusUrl();
-      console.log("requestUrl", requestUrl);
-      console.log("statusUrl", statusUrl);
-
-      setUrl(requestUrl);
-      setShowQR(true);
       setShowButton(false);
-      setIsLoaded(false);
 
       await reclaimClient.startSession({
         onSuccess: async (proof) => {
@@ -95,23 +86,31 @@ https://x.com/madhavanmalolan/status/1792949714813419792
           // Your business logic here
           setProofs(proof);
           setShowQR(false);
+          setIsLoaded(false);
+          setError(null);
         },
         onError: (error) => {
           console.error("Verification failed", error);
           // Your business logic here to handle the error
           console.log("error", error);
+          setIsLoaded(false);
+          setError(`Verification failed: ${error.message || error}`);
         },
       });
     } catch (error) {
       console.error("Error in getVerificationReq", error);
       // Handle error gracefully, e.g., show a notification to the user
       // and possibly revert UI changes made before the error occurred
+      setIsLoaded(false);
+      setError(`Failed to initialize verification: ${error.message || error}`);
+      setShowButton(true);
     }
   };
 
   const handleButtonClick = (providerId) => {
     setIsCopied(false);
     setProofs(null);
+    setError(null);
     getVerificationReq(providerId);
   };
 
@@ -236,6 +235,8 @@ https://x.com/madhavanmalolan/status/1792949714813419792
                   setSelectedProviderId(e.target.value);
                   setShowQR(false);
                   setShowButton(false);
+                  setError(null);
+                  setIsLoaded(true);
                   handleButtonClick(e.target.value);
                 }}
                 className="w-full px-4 py-2 text-lg text-gray-900 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 mb-6"
@@ -251,46 +252,39 @@ https://x.com/madhavanmalolan/status/1792949714813419792
               </select>
 
               {isLoaded && (
-                <div className="flex justify-center mb-6">
-                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+                <div className="flex flex-col items-center justify-center mb-6">
+                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-2"></div>
+                  <p className="text-gray-300 text-sm">Processing verification...</p>
                 </div>
               )}
 
-              {showQR && (
-                <div className="bg-white p-6 rounded-lg shadow-inner mb-6">
-                  {!isMobileDevice ? (
-                    <>
-                      <div className="mb-4 flex justify-center">
-                        <QRCode value={url} size={200} />
-                      </div>
-                      <div className="flex items-center justify-center">
-                        <div
-                          className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-500 border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
-                          role="status"
-                        >
-                          <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
-                            Loading...
-                          </span>
-                        </div>
-                        <span className="text-blue-300 ml-2">
-                          Waiting for proofs...
-                        </span>
-                      </div>
-                      <button
-                      onClick={() => window.open(url, "_blank")}
-                      className="w-full bg-green-500 mt-4 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition duration-300"
+              {error && (
+                <div className="bg-red-900/20 border border-red-500 rounded-lg p-4 mb-6">
+                  <div className="flex items-center">
+                    <svg
+                      className="w-5 h-5 text-red-500 mr-2"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
                     >
-                      Open Link
-                    </button>
-                    </>
-                  ) : (
-                    <button
-                      onClick={() => window.open(url, "_blank")}
-                      className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition duration-300"
-                    >
-                      Open Link
-                    </button>
-                  )}
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    <h4 className="text-red-400 font-semibold">Error</h4>
+                  </div>
+                  <p className="text-red-300 mt-2">{error}</p>
+                  <button
+                    onClick={() => {
+                      setError(null);
+                      setSelectedProviderId("");
+                      setShowButton(true);
+                    }}
+                    className="mt-3 bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded transition duration-300"
+                  >
+                    Try Again
+                  </button>
                 </div>
               )}
             </div>
