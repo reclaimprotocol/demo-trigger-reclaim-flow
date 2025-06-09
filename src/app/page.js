@@ -137,7 +137,7 @@ https://x.com/madhavanmalolan/status/1792949714813419792
         if (data.providers) {
           const formattedProviders = data.providers.map((provider) => ({
             name: provider.name,
-            providerId: provider.httpProviderId,
+            providerId: provider.providerId,
           }));
           console.log("formattedProviders", formattedProviders);
           setMyProviders(formattedProviders);
