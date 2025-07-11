@@ -69,7 +69,7 @@ https://x.com/madhavanmalolan/status/1792949714813419792
         APP_ID,
         APP_SECRET,
         providerId,
-        { log: false, acceptAiProviders: true,  }
+        { log: false, acceptAiProviders: true, }
       );
       const sessionId = reclaimClient.getSessionId();
       reclaimClient.setModalOptions({
@@ -130,10 +130,25 @@ https://x.com/madhavanmalolan/status/1792949714813419792
   useEffect(() => {
     const fetchProviders = async () => {
       try {
-        const response = await fetch(
-          "https://api.reclaimprotocol.org/api/providers/verified"
-        );
-        const data = await response.json();
+        // const response = await fetch(
+        //   "https://api.reclaimprotocol.org/api/providers/verified"
+        // );
+        // const data = await response.json();
+
+
+        const data = {
+          "providers": [
+            {
+              "providerId": "c94476a0-8a75-4563-b70a-bf6124d7c59b",
+              "name": "Kaggle username",
+              "description": "Prove you own a kaggle username",
+              "logoUrl": "https://devtool-images.s3.ap-south-1.amazonaws.com/http-provider-brand-logos/kaggle.com-7bb6c482-2756-4e87-853b-f9a2a794651b.png",
+              "isVerified": true,
+              "overseerUid": null,
+              "overseerNote": null
+            }
+          ]
+        };
         if (data.providers) {
           const formattedProviders = data.providers.map((provider) => ({
             name: provider.name,
