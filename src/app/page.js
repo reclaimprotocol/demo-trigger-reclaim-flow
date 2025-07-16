@@ -146,6 +146,33 @@ https://x.com/madhavanmalolan/status/1792949714813419792
               "isVerified": true,
               "overseerUid": null,
               "overseerNote": null
+            },
+             {
+              "providerId": "6d3f6753-7ee6-49ee-a545-62f1b1822ae5",
+              "name": "Github UserName",
+              "description": "Prove your GitHub User Name",
+              "logoUrl": "https://devtool-images.s3.ap-south-1.amazonaws.com/http-provider-brand-logos/github.com-82dc77d1-d420-4093-af25-a47c81531a8d.png",
+              "isVerified": true,
+              "overseerUid": null,
+              "overseerNote": null
+            },
+            {
+              "providerId": "e6fe962d-8b4e-4ce5-abcc-3d21c88bd64a",
+              "name": "Twitter User Profile",
+              "description": "Verifies twitter profile of user",
+              "logoUrl": "https://devtool-images.s3.ap-south-1.amazonaws.com/http-provider-brand-logos/x.com-7d65b91c-7abe-44e1-a7ba-670292dd30c6.png",
+              "isVerified": true,
+              "overseerUid": null,
+              "overseerNote": null
+            },
+             {
+              "providerId": "2b22db5c-78d9-4d82-84f0-a9e0a4ed0470",
+              "name": "Binance KYC Level",
+              "description": "Verify Name, Surname, DOB, Status",
+              "logoUrl": "https://devtool-images.s3.ap-south-1.amazonaws.com/http-provider-brand-logos/binance.com-00a58378-085e-4a47-b651-1967548a06b3.png",
+              "isVerified": true,
+              "overseerUid": null,
+              "overseerNote": null
             }
           ]
         };
