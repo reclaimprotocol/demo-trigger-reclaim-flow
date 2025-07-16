@@ -147,15 +147,6 @@ https://x.com/madhavanmalolan/status/1792949714813419792
               "overseerUid": null,
               "overseerNote": null
             },
-             {
-              "providerId": "6d3f6753-7ee6-49ee-a545-62f1b1822ae5",
-              "name": "Github UserName",
-              "description": "Prove your GitHub User Name",
-              "logoUrl": "https://devtool-images.s3.ap-south-1.amazonaws.com/http-provider-brand-logos/github.com-82dc77d1-d420-4093-af25-a47c81531a8d.png",
-              "isVerified": true,
-              "overseerUid": null,
-              "overseerNote": null
-            },
             {
               "providerId": "e6fe962d-8b4e-4ce5-abcc-3d21c88bd64a",
               "name": "Twitter User Profile",
